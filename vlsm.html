@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Kalkulator VLSM BenoxJK: alokasi subnet tidak sama besar dari kebutuhan host terbesar, tanpa overlap dan sesuai kapasitas jaringan induk.">
+  <meta name="theme-color" content="#080D18">
+  <title>VLSM Calculator — BenoxJK</title>
+  <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BenoxJK">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/calculator.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="vlsm">
+  <div class="bg-ornaments" aria-hidden="true">
+    <canvas id="networkCanvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="bg-glow glow-3"></div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="app-main">
+      <header class="topbar" id="topbar"></header>
+
+      <main class="page-content">
+        <div class="page-head reveal">
+          <span class="eyebrow"><i class="bi bi-node-plus"></i> VLSM Module</span>
+          <h2>VLSM Calculator</h2>
+          <p>Variable Length Subnet Mask — setiap subnet mendapat ukuran sesuai kebutuhannya. Alokasi dimulai dari kebutuhan host terbesar, dipastikan tidak overlap.</p>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-form">
+            <div class="panel form-panel reveal">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title"><i class="bi bi-sliders2"></i> Kebutuhan Subnet</h3>
+                  <p class="panel-sub">Tambah, ubah, atau hapus baris.</p>
+                </div>
+                <span class="badge-soft">VLSM</span>
+              </div>
+
+              <form id="vlsmForm" novalidate>
+                <div class="field">
+                  <label class="form-label" for="vlsmNetwork">Network Address Utama</label>
+                  <input type="text" id="vlsmNetwork" class="form-control mono-input" placeholder="192.168.1.0/24" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="field">
+                  <label class="form-label" for="vlsmPrefix">Prefix Jaringan</label>
+                  <input type="text" inputmode="numeric" id="vlsmPrefix" class="form-control mono-input" placeholder="24" autocomplete="off">
+                  <span class="form-text">Kosongkan jika sudah menulis prefix pada kolom network.</span>
+                </div>
+
+                <div class="form-label"><span>Daftar Subnet</span><span class="optional">host usable</span></div>
+                <div class="vlsm-list" id="vlsmList"></div>
+
+                <button type="button" class="btn-ghost btn-block mt-3" id="vlsmAdd"><i class="bi bi-plus-lg"></i> Tambah Subnet</button>
+
+                <div class="field-error mt-3" id="vlsmError" role="alert">
+                  <i class="bi bi-exclamation-octagon"></i>
+                  <span id="vlsmErrorText"></span>
+                </div>
+
+                <div class="form-actions mt-3">
+                  <button type="submit" class="btn-gradient" id="vlsmSubmit"><i class="bi bi-diagram-2"></i> Generate VLSM</button>
+                  <button type="button" class="btn-ghost" id="vlsmExample"><i class="bi bi-stars"></i> Contoh</button>
+                  <button type="button" class="btn-ghost" id="vlsmReset"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="panel reveal d-1 mt-3">
+              <div class="panel-head mb-2">
+                <h3 class="panel-title"><i class="bi bi-lightbulb"></i> Cara Kerja VLSM</h3>
+              </div>
+              <div class="step-body">
+                <p class="mb-2">1. Hitung blok terkecil yang muat: <span class="mono">2^⌈log2(host+2)⌉</span>.</p>
+                <p class="mb-2">2. Urutkan kebutuhan dari host terbesar ke terkecil.</p>
+                <p class="mb-2">3. Alokasikan tiap blok pada batas alamatnya agar tidak overlap.</p>
+                <p class="mb-0">4. Pastikan seluruh alokasi masih di dalam jaringan induk.</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel empty-state reveal" id="vlsmEmpty">
+              <div class="empty-icon"><i class="bi bi-node-plus"></i></div>
+              <h3>Belum ada alokasi</h3>
+              <p>Isi network utama dan daftar kebutuhan host, lalu tekan Generate VLSM untuk melihat tabel alokasi lengkap.</p>
+            </div>
+
+            <div id="vlsmResultWrap" class="d-none">
+              <div class="panel reveal">
+                <div class="result-head">
+                  <div>
+                    <span class="result-tag"><i class="bi bi-node-plus"></i> VLSM ALLOCATION</span>
+                    <h3>Hasil Alokasi VLSM</h3>
+                    <p id="vlsmNote"></p>
+                  </div>
+                  <div class="panel-actions">
+                    <button class="btn-tool" id="vlsmCopyAll"><i class="bi bi-clipboard-check"></i> Copy Result</button>
+                    <div class="dropdown">
+                      <button class="btn-tool dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-download"></i> Export</button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button type="button" class="dropdown-item" data-export-vlsm="pdf"><i class="bi bi-file-earmark-pdf"></i> Export PDF</button></li>
+                        <li><button type="button" class="dropdown-item" data-export-vlsm="csv"><i class="bi bi-filetype-csv"></i> Export CSV</button></li>
+                        <li><button type="button" class="dropdown-item" data-export-vlsm="print"><i class="bi bi-printer"></i> Print Result</button></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="summary-strip" id="vlsmSummary"></div>
+
+                <div class="table-wrap">
+                  <div class="table-scroll">
+                    <table class="data-table wide">
+                      <thead>
+                        <tr>
+                          <th>#</th><th>Subnet</th><th>Host</th><th>Prefix</th><th>Subnet Mask</th>
+                          <th>Network</th><th>First Host</th><th>Last Host</th><th>Broadcast</th><th>Kapasitas</th>
+                        </tr>
+                      </thead>
+                      <tbody id="vlsmTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <p class="panel-sub mt-3 mb-0"><i class="bi bi-shield-check"></i> Alokasi diverifikasi ulang: tidak ada overlap dan seluruh blok berada di dalam jaringan induk.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <div><strong>BenoxJK</strong> — VLSM Calculator. Kapasitas induk dan overlap diperiksa sebelum hasil ditampilkan.</div>
+        <div class="footer-links">
+          <a href="subnetting.html">Subnetting</a>
+          <a href="learning.html">Learning Center</a>
+          <a href="history.html">History</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/binary-converter.js"></script>
+  <script src="../assets/js/history.js"></script>
+  <script src="../assets/js/export.js"></script>
+  <script src="../assets/js/animations.js"></script>
+  <script src="../assets/js/vlsm-engine.js"></script>
+  <script src="../assets/js/pwa.js"></script>
+</body>
+</html>

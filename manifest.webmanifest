@@ -1,0 +1,55 @@
+{
+  "name": "BenoxJK — Network Address & Subnetting Calculator",
+  "short_name": "BenoxJK",
+  "description": "Kalkulator IPv4, IPv6, subnetting FLSM/VLSM, dan IPv6 prefix planner yang berjalan sepenuhnya di browser. Dapat dipasang dan dipakai offline.",
+  "lang": "id",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#080D18",
+  "theme_color": "#080D18",
+  "categories": ["utilities", "education", "productivity"],
+  "icons": [
+    {
+      "src": "assets/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/images/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "IPv4 Calculator",
+      "short_name": "IPv4",
+      "url": "./pages/ipv4.html",
+      "icons": [{ "src": "assets/images/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Subnetting Calculator",
+      "short_name": "Subnetting",
+      "url": "./pages/subnetting.html",
+      "icons": [{ "src": "assets/images/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Practice & Quiz",
+      "short_name": "Quiz",
+      "url": "./pages/quiz.html",
+      "icons": [{ "src": "assets/images/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="IPv6 Prefix Planner BenoxJK: rencanakan subnet IPv6 dari parent prefix, hitung alamat jaringan, prefix length, dan kapasitas tiap subnet.">
+  <meta name="theme-color" content="#080D18">
+  <title>IPv6 Prefix Planner — BenoxJK</title>
+  <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BenoxJK">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/calculator.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="planner">
+  <div class="bg-ornaments" aria-hidden="true">
+    <canvas id="networkCanvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="bg-glow glow-3"></div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="app-main">
+      <header class="topbar" id="topbar"></header>
+
+      <main class="page-content">
+        <div class="page-head reveal">
+          <span class="eyebrow"><i class="bi bi-signpost-split"></i> IPv6 Planner</span>
+          <h2>IPv6 Prefix Planner</h2>
+          <p>Rencanakan pembagian parent prefix IPv6 menjadi subnet dengan panjang prefix baru. Perhitungan memakai BigInt 128-bit.</p>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-form">
+            <div class="panel form-panel reveal">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title"><i class="bi bi-sliders2"></i> Rencana Prefix</h3>
+                  <p class="panel-sub">Parent → subnet baru.</p>
+                </div>
+                <span class="badge-soft mono">IPv6</span>
+              </div>
+
+              <form id="plannerForm" novalidate>
+                <div class="field">
+                  <label class="form-label" for="plannerNetwork">IPv6 Network</label>
+                  <input type="text" id="plannerNetwork" class="form-control mono-input" data-planner-field="network" placeholder="2001:db8:abcd::/48" autocomplete="off" spellcheck="false">
+                  <span class="form-text">Contoh: <span class="mono">2001:db8:abcd::/48</span>.</span>
+                </div>
+                <div class="input-row">
+                  <div class="field">
+                    <label class="form-label" for="plannerParent">Parent Prefix</label>
+                    <input type="text" inputmode="numeric" id="plannerParent" class="form-control mono-input" data-planner-field="parent" placeholder="48" autocomplete="off">
+                  </div>
+                  <div class="field">
+                    <label class="form-label" for="plannerNewPrefix">New Prefix</label>
+                    <input type="text" inputmode="numeric" id="plannerNewPrefix" class="form-control mono-input" data-planner-field="newPrefix" placeholder="64" autocomplete="off">
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="form-label" for="plannerCount">Jumlah Subnet Dibutuhkan</label>
+                  <input type="text" inputmode="numeric" id="plannerCount" class="form-control mono-input" data-planner-field="count" placeholder="8" autocomplete="off">
+                  <span class="form-text">Maksimal 512 subnet ditampilkan per generate.</span>
+                </div>
+
+                <div class="field-error" id="plannerError" role="alert">
+                  <i class="bi bi-exclamation-octagon"></i>
+                  <span id="plannerErrorText"></span>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-gradient" id="plannerSubmit"><i class="bi bi-signpost-split"></i> Generate Plan</button>
+                  <button type="button" class="btn-ghost" id="plannerReset"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                </div>
+              </form>
+
+              <div class="example-chips">
+                <span class="label">Contoh cepat</span>
+                <div class="chips">
+                  <button type="button" class="chip" data-example-planner data-net="2001:db8:abcd::" data-parent="48" data-new="64" data-count="8">/48 → /64</button>
+                  <button type="button" class="chip" data-example-planner data-net="2001:db8::" data-parent="32" data-new="48" data-count="16">/32 → /48</button>
+                  <button type="button" class="chip" data-example-planner data-net="2001:db8:abcd:12::" data-parent="64" data-new="72" data-count="32">/64 → /72</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel reveal d-1 mt-3">
+              <div class="panel-head mb-2">
+                <h3 class="panel-title"><i class="bi bi-lightbulb"></i> Rumus</h3>
+              </div>
+              <div class="step-body">
+                <div class="formula"><span class="eq">Subnet bit =</span> new prefix − parent prefix</div>
+                <div class="formula"><span class="eq">Maksimum subnet =</span> 2^subnet bit</div>
+                <div class="formula"><span class="eq">Kapasitas subnet =</span> 2^(128 − new prefix)</div>
+                <p class="mb-0">Tidak ada broadcast address pada IPv6, sehingga seluruh alamat dalam prefix dapat dipakai.</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel empty-state reveal" id="plannerEmpty">
+              <div class="empty-icon"><i class="bi bi-signpost-split"></i></div>
+              <h3>Belum ada rencana</h3>
+              <p>Tentukan parent network, prefix baru, dan jumlah subnet. Daftar subnet beserta kapasitas alamatnya akan tampil di sini.</p>
+            </div>
+
+            <div id="plannerResultWrap" class="d-none">
+              <div class="panel reveal">
+                <div class="result-head">
+                  <div>
+                    <span class="result-tag"><i class="bi bi-signpost-split"></i> PREFIX PLAN</span>
+                    <h3>Rencana Subnet IPv6</h3>
+                    <p id="plannerNote"></p>
+                  </div>
+                  <div class="panel-actions">
+                    <button class="btn-tool" id="plannerCopyAll"><i class="bi bi-clipboard-check"></i> Copy Result</button>
+                    <div class="dropdown">
+                      <button class="btn-tool dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-download"></i> Export</button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button type="button" class="dropdown-item" data-export-planner="pdf"><i class="bi bi-file-earmark-pdf"></i> Export PDF</button></li>
+                        <li><button type="button" class="dropdown-item" data-export-planner="csv"><i class="bi bi-filetype-csv"></i> Export CSV</button></li>
+                        <li><button type="button" class="dropdown-item" data-export-planner="print"><i class="bi bi-printer"></i> Print Result</button></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="summary-strip" id="plannerSummary"></div>
+
+                <div class="table-toolbar">
+                  <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="search" class="form-control" id="plannerSearch" placeholder="Cari subnet prefix…" aria-label="Cari subnet">
+                  </div>
+                </div>
+
+                <div class="table-wrap">
+                  <div class="table-scroll">
+                    <table class="data-table">
+                      <thead>
+                        <tr><th>#</th><th>Subnet Prefix</th><th>Network Address</th><th>Prefix</th><th>Address Capacity</th><th>Range</th></tr>
+                      </thead>
+                      <tbody id="plannerTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="table-info" id="plannerInfo"></div>
+                <div class="pagination-bar" id="plannerPagination"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <div><strong>BenoxJK</strong> — IPv6 Prefix Planner. Kapasitas alamat dihitung eksak dengan BigInt.</div>
+        <div class="footer-links">
+          <a href="ipv6.html">IPv6 Calculator</a>
+          <a href="learning.html">Learning Center</a>
+          <a href="history.html">History</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/binary-converter.js"></script>
+  <script src="../assets/js/history.js"></script>
+  <script src="../assets/js/export.js"></script>
+  <script src="../assets/js/animations.js"></script>
+  <script src="../assets/js/ipv6-planner.js"></script>
+  <script src="../assets/js/pwa.js"></script>
+</body>
+</html>

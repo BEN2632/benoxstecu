@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Kalkulator IPv4 BenoxJK: network address, broadcast, host range, subnet mask, wildcard, kelas IP, dan biner dengan langkah perhitungan.">
+  <meta name="theme-color" content="#080D18">
+  <title>IPv4 Calculator — BenoxJK</title>
+  <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BenoxJK">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/calculator.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="ipv4">
+  <div class="bg-ornaments" aria-hidden="true">
+    <canvas id="networkCanvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="bg-glow glow-3"></div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="app-main">
+      <header class="topbar" id="topbar"></header>
+
+      <main class="page-content">
+        <div class="page-head reveal">
+          <span class="eyebrow"><i class="bi bi-globe"></i> IPv4 Module</span>
+          <h2>IPv4 Calculator</h2>
+          <p>Masukkan alamat IPv4 beserta prefix CIDR atau subnet mask. Kalkulator menampilkan NA, HA, SUB1, SUB2, host range, broadcast, kelas, dan biner secara lengkap.</p>
+        </div>
+
+        <div class="calc-grid">
+          <!-- FORM -->
+          <div class="calc-form">
+            <div class="panel form-panel reveal">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title"><i class="bi bi-sliders2"></i> Input Perhitungan</h3>
+                  <p class="panel-sub">Prefix atau subnet mask — isi salah satu.</p>
+                </div>
+                <span class="badge-soft mono">IPv4</span>
+              </div>
+
+              <form id="ipv4Form" novalidate>
+                <div class="field">
+                  <label class="form-label" for="ipv4Address">IPv4 Address <span class="optional">wajib</span></label>
+                  <input type="text" id="ipv4Address" class="form-control mono-input" placeholder="10.10.10.10/11" autocomplete="off" spellcheck="false">
+                  <span class="form-text">Boleh langsung dengan CIDR, contoh <span class="mono">10.10.10.10/11</span>.</span>
+                </div>
+                <div class="input-row">
+                  <div class="field">
+                    <label class="form-label" for="ipv4Prefix">Prefix CIDR</label>
+                    <input type="text" inputmode="numeric" id="ipv4Prefix" class="form-control mono-input" placeholder="11" autocomplete="off">
+                  </div>
+                  <div class="field">
+                    <label class="form-label" for="ipv4Mask">Subnet Mask</label>
+                    <input type="text" id="ipv4Mask" class="form-control mono-input" placeholder="255.224.0.0" autocomplete="off" spellcheck="false">
+                  </div>
+                </div>
+
+                <div class="form-hint">
+                  <i class="bi bi-info-circle"></i>
+                  <span>CIDR pada kolom IP diprioritaskan. Jika kosong, prefix dipakai; jika prefix kosong, subnet mask dikonversi menjadi prefix.</span>
+                </div>
+
+                <div class="field-error" id="ipv4Error" role="alert">
+                  <i class="bi bi-exclamation-octagon"></i>
+                  <span id="ipv4ErrorText"></span>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-gradient" id="ipv4Submit"><i class="bi bi-calculator"></i> Calculate</button>
+                  <button type="button" class="btn-ghost" id="ipv4Reset"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                </div>
+              </form>
+
+              <div class="example-chips">
+                <span class="label">Contoh cepat</span>
+                <div class="chips">
+                  <button type="button" class="chip" data-example="10.10.10.10/11">10.10.10.10/11</button>
+                  <button type="button" class="chip" data-example="192.168.1.10/24">192.168.1.10/24</button>
+                  <button type="button" class="chip" data-example="172.16.5.4/16">172.16.5.4/16</button>
+                  <button type="button" class="chip" data-example="192.168.1.1/31">/31</button>
+                  <button type="button" class="chip" data-example="8.8.8.8/32">/32</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel reveal d-1 mt-3">
+              <div class="panel-head mb-2">
+                <h3 class="panel-title"><i class="bi bi-book"></i> Catatan Istilah</h3>
+              </div>
+              <div class="step-body">
+                <p><strong>HA (Host ID)</strong> adalah bagian alamat IP di luar network address, dihitung dari subnet mask aktual (SUB2).</p>
+                <p><strong>SUB1</strong> subnet mask default kelas, <strong>SUB2</strong> subnet mask aktual sesuai prefix.</p>
+                <div class="formula"><span class="eq">NA =</span> IP <span class="eq">AND</span> Mask</div>
+                <div class="formula"><span class="eq">BOARD =</span> NA <span class="eq">OR</span> Wildcard</div>
+                <a href="learning.html#subnet-mask" class="stat-link mt-2">Pelajari konsepnya <i class="bi bi-arrow-right"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- RESULT -->
+          <div>
+            <div class="panel empty-state reveal" id="ipv4Empty">
+              <div class="empty-icon"><i class="bi bi-hdd-network"></i></div>
+              <h3>Belum ada hasil</h3>
+              <p>Isi alamat IPv4 di panel kiri, lalu tekan Calculate. Hasil lengkap beserta langkah perhitungan akan muncul di sini.</p>
+            </div>
+
+            <div id="ipv4ResultWrap" class="d-none">
+              <div class="panel result-panel reveal">
+                <div class="result-head">
+                  <div>
+                    <span class="result-tag"><i class="bi bi-check2-circle"></i> CALCULATION READY</span>
+                    <h3>Hasil Perhitungan IPv4</h3>
+                    <p>Semua nilai dihitung langsung di browser Anda.</p>
+                  </div>
+                  <div class="panel-actions">
+                    <button class="btn-tool" id="ipv4CopyAll"><i class="bi bi-clipboard-check"></i> Copy Result</button>
+                    <div class="dropdown">
+                      <button class="btn-tool dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-download"></i> Export</button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button type="button" class="dropdown-item" data-export-ipv4="pdf"><i class="bi bi-file-earmark-pdf"></i> Export PDF</button></li>
+                        <li><button type="button" class="dropdown-item" data-export-ipv4="csv"><i class="bi bi-filetype-csv"></i> Export CSV</button></li>
+                        <li><button type="button" class="dropdown-item" data-export-ipv4="print"><i class="bi bi-printer"></i> Print Result</button></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="latihan-block" id="ipv4Latihan"></div>
+                <div class="result-extra" id="ipv4Extra"></div>
+              </div>
+
+              <div class="panel reveal d-1 mt-3">
+                <ul class="nav nav-pills benox-tabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#ipv4TabBinary" type="button" role="tab"><i class="bi bi-123"></i> Binary</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#ipv4TabSteps" type="button" role="tab"><i class="bi bi-list-ol"></i> Langkah Perhitungan</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#ipv4TabSubnets" type="button" role="tab"><i class="bi bi-table"></i> Tabel Subnet</button>
+                  </li>
+                </ul>
+
+                <div class="tab-content">
+                  <div class="tab-pane fade show active" id="ipv4TabBinary" role="tabpanel">
+                    <div class="binary-list" id="ipv4BinaryPane"></div>
+                  </div>
+
+                  <div class="tab-pane fade" id="ipv4TabSteps" role="tabpanel">
+                    <div class="steps-note"><i class="bi bi-lightbulb"></i><span>Alur perhitungan ditampilkan bertahap agar bisa dipelajari, bukan hanya hasil akhirnya.</span></div>
+                    <div id="ipv4StepsPane"></div>
+                  </div>
+
+                  <div class="tab-pane fade" id="ipv4TabSubnets" role="tabpanel">
+                    <div class="table-toolbar">
+                      <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="search" class="form-control" id="ipv4SubnetSearch" placeholder="Cari network, broadcast, atau CIDR…" aria-label="Cari subnet">
+                      </div>
+                      <span class="badge-soft"><i class="bi bi-grid-3x3-gap"></i> <span id="ipv4TotalSubnets">0</span> subnet</span>
+                    </div>
+                    <p class="panel-sub mb-2" id="ipv4SubnetNote"></p>
+                    <div class="table-wrap">
+                      <div class="table-scroll">
+                        <table class="data-table">
+                          <thead>
+                            <tr><th>#</th><th>Network</th><th>First Host</th><th>Last Host</th><th>Broadcast</th><th>CIDR</th></tr>
+                          </thead>
+                          <tbody id="ipv4SubnetTbody"></tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <div class="table-info" id="ipv4SubnetInfo"></div>
+                    <div class="pagination-bar" id="ipv4SubnetPagination"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <div><strong>BenoxJK</strong> — IPv4 Calculator. Hasil dihitung dengan aritmetika 32-bit di browser.</div>
+        <div class="footer-links">
+          <a href="learning.html">Learning Center</a>
+          <a href="subnetting.html">Subnetting</a>
+          <a href="history.html">History</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/binary-converter.js"></script>
+  <script src="../assets/js/history.js"></script>
+  <script src="../assets/js/export.js"></script>
+  <script src="../assets/js/animations.js"></script>
+  <script src="../assets/js/ipv4-engine.js"></script>
+  <script src="../assets/js/pwa.js"></script>
+</body>
+</html>

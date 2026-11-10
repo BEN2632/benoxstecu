@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Kalkulator IPv6 BenoxJK: kompresi, ekspansi, network prefix, host identifier, prefix range, dan tipe alamat IPv6.">
+  <meta name="theme-color" content="#080D18">
+  <title>IPv6 Calculator — BenoxJK</title>
+  <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BenoxJK">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/calculator.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="ipv6">
+  <div class="bg-ornaments" aria-hidden="true">
+    <canvas id="networkCanvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="bg-glow glow-3"></div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="app-main">
+      <header class="topbar" id="topbar"></header>
+
+      <main class="page-content">
+        <div class="page-head reveal">
+          <span class="eyebrow"><i class="bi bi-globe2"></i> IPv6 Module</span>
+          <h2>IPv6 Calculator</h2>
+          <p>Hitung network prefix, host identifier, kapasitas alamat, dan tipe IPv6. Seluruh aritmetika menggunakan BigInt 128-bit agar presisi.</p>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-form">
+            <div class="panel form-panel reveal">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title"><i class="bi bi-sliders2"></i> Input IPv6</h3>
+                  <p class="panel-sub">Mendukung notasi "::" dan huruf besar.</p>
+                </div>
+                <span class="badge-soft mono">IPv6</span>
+              </div>
+
+              <form id="ipv6Form" novalidate>
+                <div class="field">
+                  <label class="form-label" for="ipv6Address">IPv6 Address <span class="optional">wajib</span></label>
+                  <input type="text" id="ipv6Address" class="form-control mono-input" placeholder="2001:db8:abcd:0012::1/64" autocomplete="off" spellcheck="false">
+                  <span class="form-text">Contoh: <span class="mono">2001:db8::1</span> atau <span class="mono">2001:db8::1/64</span>.</span>
+                </div>
+                <div class="field">
+                  <label class="form-label" for="ipv6Prefix">Prefix Length</label>
+                  <input type="text" inputmode="numeric" id="ipv6Prefix" class="form-control mono-input" placeholder="64" autocomplete="off">
+                  <span class="form-text">Rentang 0–128. Wajib jika alamat tidak memuat CIDR.</span>
+                </div>
+
+                <div class="field-error" id="ipv6Error" role="alert">
+                  <i class="bi bi-exclamation-octagon"></i>
+                  <span id="ipv6ErrorText"></span>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn-gradient" id="ipv6Submit"><i class="bi bi-calculator"></i> Calculate</button>
+                  <button type="button" class="btn-ghost" id="ipv6Reset"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+                </div>
+              </form>
+
+              <div class="example-chips">
+                <span class="label">Contoh cepat</span>
+                <div class="chips">
+                  <button type="button" class="chip" data-example-v6="2001:db8:abcd:0012::1/64">...::1/64</button>
+                  <button type="button" class="chip" data-example-v6="2001:db8::1/32">2001:db8::1/32</button>
+                  <button type="button" class="chip" data-example-v6="fe80::1/64">fe80::1/64</button>
+                  <button type="button" class="chip" data-example-v6="::1/128">::1/128</button>
+                  <button type="button" class="chip" data-example-v6="::/0">::/0</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel reveal d-1 mt-3">
+              <div class="panel-head mb-2">
+                <h3 class="panel-title"><i class="bi bi-info-circle"></i> Ketentuan IPv6</h3>
+              </div>
+              <div class="step-body">
+                <p>IPv6 memakai <strong>128 bit</strong> yang ditulis sebagai 8 grup hextet. Tidak ada subnet mask desimal dan <strong>tidak ada broadcast address</strong>.</p>
+                <div class="formula"><span class="eq">Network =</span> Address <span class="eq">AND</span> Prefix Mask</div>
+                <div class="formula"><span class="eq">Total =</span> 2^(128 − prefix)</div>
+                <p class="mb-0">Gunakan <strong>/64</strong> untuk LAN standar dan <strong>/48</strong> untuk site allocation.</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="panel empty-state reveal" id="ipv6Empty">
+              <div class="empty-icon"><i class="bi bi-globe2"></i></div>
+              <h3>Belum ada hasil</h3>
+              <p>Masukkan alamat IPv6 dan prefix length, lalu tekan Calculate. Ekspansi, kompresi, dan network prefix akan tampil di sini.</p>
+            </div>
+
+            <div id="ipv6ResultWrap" class="d-none">
+              <div class="panel result-panel reveal">
+                <div class="result-head">
+                  <div>
+                    <span class="result-tag"><i class="bi bi-check2-circle"></i> IPv6 READY</span>
+                    <h3>Hasil Perhitungan IPv6</h3>
+                    <p>128-bit arithmetic menggunakan BigInt.</p>
+                  </div>
+                  <div class="panel-actions">
+                    <button class="btn-tool" id="ipv6CopyAll"><i class="bi bi-clipboard-check"></i> Copy Result</button>
+                    <div class="dropdown">
+                      <button class="btn-tool dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-download"></i> Export</button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button type="button" class="dropdown-item" data-export-ipv6="pdf"><i class="bi bi-file-earmark-pdf"></i> Export PDF</button></li>
+                        <li><button type="button" class="dropdown-item" data-export-ipv6="csv"><i class="bi bi-filetype-csv"></i> Export CSV</button></li>
+                        <li><button type="button" class="dropdown-item" data-export-ipv6="print"><i class="bi bi-printer"></i> Print Result</button></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="latihan-block" id="ipv6Primary"></div>
+                <div class="result-extra" id="ipv6Extra"></div>
+              </div>
+
+              <div class="panel reveal d-1 mt-3">
+                <ul class="nav nav-pills benox-tabs" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#ipv6TabBinary" type="button" role="tab"><i class="bi bi-123"></i> Binary 128-bit</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#ipv6TabSteps" type="button" role="tab"><i class="bi bi-list-ol"></i> Langkah Perhitungan</button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#ipv6TabNotes" type="button" role="tab"><i class="bi bi-journal-text"></i> Ketentuan</button>
+                  </li>
+                </ul>
+
+                <div class="tab-content">
+                  <div class="tab-pane fade show active" id="ipv6TabBinary" role="tabpanel">
+                    <div class="binary-list" id="ipv6BinaryPane"></div>
+                  </div>
+                  <div class="tab-pane fade" id="ipv6TabSteps" role="tabpanel">
+                    <div
+                      class="steps-note"><i class="bi bi-lightbulb"></i><span>Setiap langkah memakai alamat yang sudah tervalidasi, sehingga hasil ekspansi dan kompresi konsisten.</span></div>
+                    <div id="ipv6StepsPane"></div>
+                  </div>
+                  <div class="tab-pane fade" id="ipv6TabNotes" role="tabpanel">
+                    <div class="steps-note" id="ipv6NoBroadcast"></div>
+                    <div class="step-body">
+                      <p><strong>Global Unicast</strong> (2000::/3) dipakai untuk alamat publik. <strong>Link-Local</strong> (fe80::/10) hanya berlaku di satu link. <strong>ULA</strong> (fc00::/7) setara private address. <strong>Multicast</strong> (ff00::/8) menggantikan broadcast.</p>
+                      <p class="mb-0">Prefix /64 menyisakan 64 bit untuk interface identifier, sesuai standar SLAAC.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <div><strong>BenoxJK</strong> — IPv6 Calculator. Kapasitas alamat dihitung eksak dengan BigInt.</div>
+        <div class="footer-links">
+          <a href="ipv6-planner.html">IPv6 Prefix Planner</a>
+          <a href="learning.html">Learning Center</a>
+          <a href="history.html">History</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/binary-converter.js"></script>
+  <script src="../assets/js/history.js"></script>
+  <script src="../assets/js/export.js"></script>
+  <script src="../assets/js/animations.js"></script>
+  <script src="../assets/js/ipv6-engine.js"></script>
+  <script src="../assets/js/pwa.js"></script>
+</body>
+</html>

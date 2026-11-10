@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Practice & Quiz BenoxJK: latihan IPv4, subnet mask, network, broadcast, host range, FLSM, VLSM, dan IPv6 dengan pembahasan otomatis.">
+  <meta name="theme-color" content="#080D18">
+  <title>Practice &amp; Quiz — BenoxJK</title>
+  <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BenoxJK">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/calculator.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="quiz">
+  <div class="bg-ornaments" aria-hidden="true">
+    <canvas id="networkCanvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="bg-glow glow-3"></div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="app-main">
+      <header class="topbar" id="topbar"></header>
+
+      <main class="page-content">
+        <div class="page-head reveal">
+          <span class="eyebrow"><i class="bi bi-patch-question"></i> Practice &amp; Quiz</span>
+          <h2>Latihan Interaktif</h2>
+          <p>Soal dibuat baru setiap percobaan dengan angka acak, lalu dinilai otomatis lengkap dengan pembahasan.</p>
+        </div>
+
+        <!-- SETUP -->
+        <div class="panel reveal" id="quizSetup">
+          <div class="quiz-setup">
+            <div class="panel-head">
+              <div>
+                <h3 class="panel-title"><i class="bi bi-grid-3x3-gap"></i> Pilih Kategori</h3>
+                <p class="panel-sub">8 kategori, masing-masing memiliki 10 tipe soal dinamis.</p>
+              </div>
+              <span class="badge-soft"><i class="bi bi-shuffle"></i> Random</span>
+            </div>
+
+            <div class="quiz-cats" id="quizCats"></div>
+
+            <div class="row g-3 align-items-end">
+              <div class="col-sm-5">
+                <label class="form-label" for="quizCount">Jumlah Soal</label>
+                <select class="form-select" id="quizCount">
+                  <option value="5">5 soal</option>
+                  <option value="10" selected>10 soal</option>
+                  <option value="15">15 soal</option>
+                </select>
+              </div>
+              <div class="col-sm-7">
+                <div class="form-check form-switch form-check-reverse d-flex align-items-center gap-2 ps-0">
+                  <input class="form-check-input m-0" type="checkbox" role="switch" id="quizTimerToggle">
+                  <label class="form-check-label" for="quizTimerToggle">Aktifkan timer (1 menit per soal)</label>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn-gradient mt-4" id="quizStart"><i class="bi bi-play-fill"></i> Mulai Latihan</button>
+            <p class="panel-sub mt-3 mb-0"><i class="bi bi-shield-check"></i> Penilaian dan pembahasan dihitung di browser — tanpa server.</p>
+          </div>
+        </div>
+
+        <!-- QUIZ -->
+        <div class="d-none" id="quizStage">
+          <div class="panel">
+            <div class="quiz-topline">
+              <span class="badge-soft" id="quizCatLabel"></span>
+              <span class="quiz-progress-text" id="quizProgressText"></span>
+              <span class="quiz-timer d-none" id="quizTimer"></span>
+            </div>
+            <div class="progress-track"><span id="quizProgressBar" style="width:0%"></span></div>
+            <div id="quizQuestionMount"></div>
+            <div class="quiz-feedback d-none" id="quizFeedback"></div>
+            <div class="quiz-footer">
+              <button type="button" class="btn-ghost btn-sm" id="quizQuit"><i class="bi bi-x-lg"></i> Keluar</button>
+              <button type="button" class="btn-gradient" id="quizNext" disabled>Jawab dulu <i class="bi bi-lock"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULT -->
+        <div class="d-none" id="quizResultStage">
+          <div class="panel">
+            <div class="quiz-result">
+              <span class="eyebrow"><i class="bi bi-flag"></i> Hasil Latihan</span>
+              <div class="score-ring" id="quizScoreRing">
+                <div>
+                  <div class="score-value" id="quizScoreValue">0%</div>
+                  <div class="score-label">Skor</div>
+                </div>
+              </div>
+              <h3 id="quizScoreTitle"></h3>
+              <div class="d-flex gap-2 justify-content-center flex-wrap" id="quizScoreDetail"></div>
+            </div>
+            <div class="divider"></div>
+            <h4 class="panel-title mb-3"><i class="bi bi-journal-check"></i> Pembahasan Jawaban</h4>
+            <div class="quiz-review" id="quizReview"></div>
+            <div class="quiz-footer">
+              <button type="button" class="btn-ghost" id="quizChangeCategory"><i class="bi bi-grid"></i> Ganti Kategori</button>
+              <button type="button" class="btn-gradient" id="quizRetry"><i class="bi bi-arrow-repeat"></i> Ulangi Latihan</button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="app-footer">
+        <div><strong>BenoxJK</strong> — Practice &amp; Quiz. Soal dihasilkan ulang setiap latihan.</div>
+        <div class="footer-links">
+          <a href="learning.html">Learning Center</a>
+          <a href="ipv4.html">IPv4 Calculator</a>
+          <a href="history.html">History</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/binary-converter.js"></script>
+  <script src="../assets/js/ipv4-engine.js"></script>
+  <script src="../assets/js/animations.js"></script>
+  <script src="../assets/js/quiz.js"></script>
+  <script src="../assets/js/pwa.js"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Tentang BenoxJK — network address & subnetting calculator yang berjalan sepenuhnya di browser.">
+  <meta name="theme-color" content="#080D18">
+  <title>About BenoxJK — BenoxJK</title>
+  <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml">
+
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/images/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BenoxJK">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/calculator.css">
+  <link rel="stylesheet" href="../assets/css/animations.css">
+  <link rel="stylesheet" href="../assets/css/responsive.css">
+</head>
+<body data-page="about">
+  <div class="bg-ornaments" aria-hidden="true">
+    <canvas id="networkCanvas"></canvas>
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+    <div class="bg-glow glow-3"></div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="app-main">
+      <header class="topbar" id="topbar"></header>
+
+      <main class="page-content">
+        <div class="page-head reveal">
+          <span class="eyebrow"><i class="bi bi-info-circle"></i> About</span>
+          <h2>Tentang BenoxJK</h2>
+          <p>Network address &amp; subnetting calculator dengan penjelasan langkah demi langkah.</p>
+        </div>
+
+        <section class="panel reveal mb-4">
+          <div class="about-hero">
+            <div>
+              <h2>Benox<span class="text-gradient">JK</span></h2>
+              <p>BenoxJK adalah toolkit jaringan berbasis browser untuk menghitung IPv4, IPv6, FLSM, VLSM, dan perencanaan prefix IPv6. Setiap hasil disertai proses perhitungan sehingga dapat dipakai sebagai media belajar, bukan sekadar kotak hitam.</p>
+              <p>Seluruh perhitungan berjalan di perangkat Anda menggunakan JavaScript. Tidak ada backend, tidak ada upload data, dan tidak ada dependensi database.</p>
+              <div class="stack-badges mt-3">
+                <span class="stack-badge"><i class="bi bi-filetype-html"></i> HTML5</span>
+                <span class="stack-badge"><i class="bi bi-filetype-css"></i> CSS3</span>
+                <span class="stack-badge"><i class="bi bi-filetype-js"></i> JavaScript ES6+</span>
+                <span class="stack-badge"><i class="bi bi-bootstrap"></i> Bootstrap 5</span>
+                <span class="stack-badge"><i class="bi bi-bootstrap-fill"></i> Bootstrap Icons</span>
+                <span class="stack-badge"><i class="bi bi-fonts"></i> Poppins</span>
+                <span class="stack-badge"><i class="bi bi-hdd"></i> LocalStorage</span>
+              </div>
+            </div>
+            <div class="about-pill-grid">
+              <div class="about-pill"><i class="bi bi-calculator"></i><strong>5 Modul</strong><small>IPv4, IPv6, FLSM, VLSM, Planner</small></div>
+              <div class="about-pill"><i class="bi bi-journal-code"></i><strong>13 Materi</strong><small>Learning center</small></div>
+              <div class="about-pill"><i class="bi bi-patch-question"></i><strong>8 Kategori</strong><small>Latihan dinamis</small></div>
+              <div class="about-pill"><i class="bi bi-shield-lock"></i><strong>0 Upload</strong><small>Privasi terjaga</small></div>
+            </div>
+          </div>
+        </section>
+
+        <div class="row g-4 mb-4">
+          <div class="col-lg-6">
+            <section class="panel reveal h-100">
+              <div class="panel-head">
+                <h3 class="panel-title"><i class="bi bi-stars"></i> Fitur Utama</h3>
+              </div>
+              <div class="feature-list">
+                <div class="feature-item"><i class="bi bi-globe"></i><div><strong>IPv4 lengkap</strong><span>NA, HA, SUB1/SUB2, host range, broadcast, kelas, tipe, biner, dan tabel subnet.</span></div></div>
+                <div class="feature-item"><i class="bi bi-globe2"></i><div><strong>IPv6 presisi</strong><span>Ekspansi, kompresi, prefix, host ID, rentang, dan tipe memakai BigInt 128-bit.</span></div></div>
+                <div class="feature-item"><i class="bi bi-diagram-3"></i><div><strong>FLSM</strong><span>Berdasarkan jumlah subnet atau kebutuhan host, dengan tabel yang dapat dicari.</span></div></div>
+                <div class="feature-item"><i class="bi bi-node-plus"></i><div><strong>VLSM</strong><span>Alokasi dari kebutuhan terbesar, cek kapasitas induk, dan deteksi overlap.</span></div></div>
+                <div class="feature-item"><i class="bi bi-signpost-split"></i><div><strong>IPv6 Planner</strong><span>Rencana subnet dari parent prefix beserta kapasitas tiap subnet.</span></div></div>
+                <div class="feature-item"><i class="bi bi-download"></i><div><strong>Export &amp; copy</strong><span>Salin hasil, unduh PDF/CSV, dan cetak langsung dari halaman.</span></div></div>
+              </div>
+            </section>
+          </div>
+
+          <div class="col-lg-6">
+            <section class="panel reveal h-100">
+              <div class="panel-head">
+                <h3 class="panel-title"><i class="bi bi-cpu"></i> Catatan Teknis</h3>
+              </div>
+              <div class="step-body">
+                <p><strong>Aritmetika IPv4</strong> memakai integer 32-bit tanpa floating point untuk operasi AND/OR mask, sehingga network dan broadcast akurat.</p>
+                <p><strong>IPv6</strong> memakai <span class="mono">BigInt</span> 128-bit agar tidak kehilangan presisi pada alamat dan kapasitas besar.</p>
+                <p><strong>VLSM</strong> mengurutkan kebutuhan host menurun, menyejajarkan blok pada batasnya, lalu memverifikasi tidak ada overlap dan tidak melewati broadcast jaringan induk.</p>
+                <p><strong>Prefix khusus</strong> /31 dan /32 ditangani sesuai RFC 3021 (tanpa pengurangan network/broadcast).</p>
+                <p class="mb-0"><strong>Penyimpanan</strong> hanya berisi modul, input, prefix, ringkasan, dan waktu. Hasil dapat dihitung ulang dari input.</p>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <section class="panel reveal mb-4">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title"><i class="bi bi-diagram-2"></i> Alur Kerja Aplikasi</h3>
+              <p class="panel-sub">Kalkulator terhubung dengan learning center, latihan, dan riwayat.</p>
+            </div>
+          </div>
+          <div class="feature-list">
+            <div class="feature-item"><i class="bi bi-1-circle"></i><div><strong>Input &amp; validasi</strong><span>Alamat, prefix, atau mask diperiksa sebelum perhitungan dijalankan.</span></div></div>
+            <div class="feature-item"><i class="bi bi-2-circle"></i><div><strong>Engine</strong><span>Mesin perhitungan menghasilkan nilai dan langkah-langkah yang bisa dipelajari.</span></div></div>
+            <div class="feature-item"><i class="bi bi-3-circle"></i><div><strong>Visualisasi</strong><span>Hasil ditampilkan per bagian, tabel subnet dapat dicari dan dipaginasi.</span></div></div>
+            <div class="feature-item"><i class="bi bi-4-circle"></i><div><strong>Riwayat</strong><span>Entri disimpan lokal dan dapat dihitung ulang dengan satu klik.</span></div></div>
+          </div>
+        </section>
+
+        <section class="panel reveal mb-4">
+          <div class="panel-head">
+            <h3 class="panel-title"><i class="bi bi-patch-question"></i> Pertanyaan Umum</h3>
+          </div>
+          <div class="accordion" id="aboutFaq">
+            <div class="accordion-item">
+              <h4 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqOne" aria-expanded="true" aria-controls="faqOne">
+                  Apakah data perhitungan saya dikirim ke server?
+                </button>
+              </h4>
+              <div id="faqOne" class="accordion-collapse collapse show" data-bs-parent="#aboutFaq">
+                <div class="accordion-body">Tidak. Seluruh perhitungan berjalan di browser. LocalStorage hanya dipakai untuk riwayat dan preferensi sidebar pada perangkat Anda.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h4 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqTwo" aria-expanded="false" aria-controls="faqTwo">
+                  Kenapa HA berbeda dari host range?
+                </button>
+              </h4>
+              <div id="faqTwo" class="accordion-collapse collapse" data-bs-parent="#aboutFaq">
+                <div class="accordion-body">HA (Host ID) adalah bagian alamat IP di luar network address, ditampilkan sebagai nilai 4 oktet. Host range adalah alamat yang dapat dipakai perangkat, yaitu NA + 1 sampai broadcast − 1.</div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h4 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqThree" aria-expanded="false" aria-controls="faqThree">
+                  Apakah hasil bisa dipakai untuk konfigurasi produksi?
+                </button>
+              </h4>
+              <div id="faqThree" class="accordion-collapse collapse" data-bs-parent="#aboutFaq">
+                <div class="accordion-body">Hasil mengikuti standar pengalamatan IP umum dan dapat menjadi acuan. Tetap verifikasi dengan perangkat atau dokumentasi vendor sebelum diterapkan di lingkungan produksi.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel reveal">
+          <div class="panel-head">
+            <h3 class="panel-title"><i class="bi bi-person-badge"></i> Pengembang</h3>
+            <span class="badge-soft">v1.0.0</span>
+          </div>
+          <p style="color:#c3d0e0;font-size:.86rem;max-width:760px">
+            BenoxJK dikembangkan sebagai proyek pembelajaran jaringan komputer. Dirancang untuk mahasiswa, teknisi, dan siapa pun yang ingin memahami pengalamatan IP secara praktis.
+          </p>
+          <div class="formula"><span class="eq">Motto =</span> hitung dengan benar, pahami langkahnya.</div>
+          <div class="divider"></div>
+          <p class="panel-sub mb-0">
+            <i class="bi bi-exclamation-circle"></i> Hasil perhitungan mengikuti standar pengalamatan IP umum. Untuk konfigurasi produksi, tetap verifikasi dengan perangkat atau dokumentasi vendor.
+          </p>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <div><strong>BenoxJK</strong> — dibangun dengan HTML, CSS, JavaScript, dan Bootstrap 5.</div>
+        <div class="footer-links">
+          <a href="learning.html">Learning Center</a>
+          <a href="quiz.html">Quiz</a>
+          <a href="history.html">History</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/animations.js"></script>
+  <script src="../assets/js/pwa.js"></script>
+</body>
+</html>
